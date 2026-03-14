@@ -24,9 +24,9 @@
 **Visual:** Tampilkan diagram skema database (ERD) side-by-side. Sorot tabel-tabel di Order Entry, lalu sorot tabel di Sales History.
 
 **Narasi:**
-"Mari kita lihat struktur data kita. Di sisi kiri adalah sistem transaksional 'Order Entry' yang merupakan System of Record kita. Data ini bersifat dinamis dan ternormalisasi. Di sisi kanan adalah 'Sales History Data Mart' dengan model Skema Bintang. 
+"skema ini sebagai skema sumber atau skema "transaksional" karena dimaksudkan untuk menyimpan data transaksi bisnis. Nama lain untuk sistem tersebut adalah "System of Record Ada sekumpulan produk (product) yang ditawarkan bisnis untuk dijual dan produk tersebut termasuk dalam hierarki kategori produk. Pelanggan (customer) memesan produk pada unit bisnis. Pesanan (order) terdiri dari beberapa barang pesanan (order item) yang merupakan produk. Pesanan dapat terkait pada promosi (promotion) tertentu dan karyawan penjualan (sales representative) yang membantu pelanggan melakukan pemesanan."
 
-Penting untuk dicatat bahwa dalam Data Mart ini, kita membedakan antara 'Business Key' dan 'Surrogate Key' atau Technical Key. Business Key adalah identitas asli data dari sistem sumber, sedangkan Surrogate Key adalah primary key buatan yang kita gunakan untuk menjaga integritas data di gudang data, terutama untuk melacak riwayat perubahan data secara historis."
+"Beberapa fitur yang perlu diperhatikan antara lain penggunaan surrogate key (Pentaho menyebutnya technical key) di setiap dimensi seperti CUSTOMER_DIM_ID dan PRODUCT_DIM_ID. Masing-masing surrogate key tersebut disertakan dalam tabel SALES_FACT dan digabungkan untuk membentuk sebuah composite key untuk tabel fakta."
 
 ---
 
@@ -68,7 +68,11 @@ Penting untuk dicatat bahwa dalam Data Mart ini, kita membedakan antara 'Busines
 **Visual:** Tampilkan layar Job (.kjb) yang berisi Start -> Wait for File -> Transformations.
 
 **Narasi:**
-"Untuk mengotomatisasi seluruh proses ini, saya menyusun sebuah 'Job'. Alurnya dimulai dari step 'Start', diikuti dengan 'Wait for File' untuk memastikan data sumber tersedia, kemudian mengeksekusi urutan transformasi secara logis. Penggunaan Job memastikan bahwa pemuatan data ke Tabel Fakta hanya terjadi setelah semua Tabel Dimensi berhasil diperbarui, menjaga integritas referensial dalam gudang data."
+"Setelah seluruh transformasi selesai dirancang, langkah krusial berikutnya adalah mengatur alur eksekusinya menggunakan PDI Job. Seperti yang terlihat di layar, saya menyusun alur kerja secara sekuensial untuk menjaga integritas data."
+
+"Alur ini dimulai dengan komponen START. Kemudian, sistem akan mengeksekusi lima transformasi dimensi secara berturut-turut: mulai dari load_customer, load_product, load_promotion, load_salesrep, hingga load_date. Urutan ini sangat penting karena tabel dimensi harus terisi terlebih dahulu untuk menyediakan Surrogate Key yang valid."
+
+"Hanya setelah seluruh dimensi berhasil dimuat tanpa kesalahan (ditandai dengan garis hijau/hop positif), sistem akan melanjutkan ke tahap akhir yaitu load_sales_fact. Di sini, tabel fakta akan melakukan lookup ke tabel-tabel dimensi yang baru saja diperbarui untuk mencatat transaksi penjualan.""
 
 ---
 
